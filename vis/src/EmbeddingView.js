@@ -29,40 +29,23 @@ const EmbeddingView = ({ run, r, updateShowGroup, updateFilter, resetFilter, sho
     "data": {
       "url": "http://localhost:3000/logs/embedding_" + env + ".json"
     },
-    "mark": "point",
+    "mark": {"type": "point", "filled": true, "size": 10},
     "width": 380,
     "height": 380,
-    // "title": {
-    //     "text":"Reward-Behavior Embedding View",
-    //     "anchor": "start"
-    // },
     "params": [
-      // {"name": "select", "select": {"type": "point", "fields": ["w1", "w2"]}},
       { "name": "brush", "select": { "type": "interval", "encodings": ["x", "y"], "resolve": "global" } }
     ],
     "encoding": {
       "x": { "field": "x", "type": "quantitative", "title": "Environment", "axis": { "ticks": false, "labels": false } },
       "y": { "field": "y", "type": "quantitative", "title": "Agent", "axis": { "ticks": false, "labels": false } },
-      // "color": {
-      //   "condition": {
-      //       "test": "datum['w1'] === "+w1+" && datum['w2'] === " + w2+" && datum['w3'] === " + w3,
-      //       "value": "red"
-      //       // "field": "r", "type": "quantitative"
-      //   }
-      // },
       "tooltip": [
-        { "field": "run", "title": "run" },
+        { "field": "key", "title": "run" },
         { "field": "r", "title": "r" },
-        // Add more fields as needed
       ],
     }
   };
 
   parallel_coor_spec = {
-    // "title": {
-    //     "text":"Selected Weights",
-    //     "anchor": "start"
-    // },
     "data": {
       "url": "http://localhost:3000/logs/embedding_" + env + ".json"
     },
@@ -80,7 +63,7 @@ const EmbeddingView = ({ run, r, updateShowGroup, updateFilter, resetFilter, sho
         "groupby": ["key"]
       },
       {
-        "calculate": "datum.value", //"(datum.value - datum.min) / (datum.max-datum.min)",
+        "calculate": "datum.value",
         "as": "norm_val"
       }
     ],
@@ -105,7 +88,6 @@ const EmbeddingView = ({ run, r, updateShowGroup, updateFilter, resetFilter, sho
     }],
     "config": {
       "axisX": { "domain": false, "labelAngle": 0, "tickColor": "#ccc", "title": null },
-      //   "view": {"stroke": null},
       "style": {
         "label": { "baseline": "middle", "align": "right", "dx": -5 },
         "tick": { "orient": "horizontal" }
@@ -196,11 +178,6 @@ const EmbeddingView = ({ run, r, updateShowGroup, updateFilter, resetFilter, sho
 
         <div style={{ height: 20 }} />
 
-        <div style={{ height: 150 }}>
-        <div style={{ marginLeft: 5, fontSize: 16 }}>Distribution of reward weights</div>
-        {reward_chart}
-        </div>
-        <div style={{ height: 20 }} />
       </div>
     </div>
   );

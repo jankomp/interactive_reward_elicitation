@@ -43,6 +43,7 @@ const Dashboard = () => {
     setX2(x2);
     setY1(y1);
     setY2(y2);
+    console.log(filteredData);
     setFilterEmbeddingData(filteredData);
     setShowGroup(true);
   };
@@ -69,7 +70,7 @@ const Dashboard = () => {
     <div>
       <Layout>
         <Header style={{ height: 60, paddingInline: 10, backgroundColor: '#7dbcea', fontSize: 20 }}>
-          Interactive Reward Tuning System
+          Interactive Reward Elicitation
         </Header>
       </Layout>
       <Layout style={{ height: 920 }}>
@@ -108,7 +109,7 @@ const Dashboard = () => {
       <Layout>
         <Footer style={{ height: 20 }}>
           <div style={{ marginTop: -10 }}>
-            <a href='https://github.com/xxxx'>https://github.com/xxxx</a>;
+            <a href='https://github.com/jankomp/interactive_reward_elicitation'>https://github.com/jankomp/interactive_reward_elicitation</a>
           </div>
         </Footer>
       </Layout>

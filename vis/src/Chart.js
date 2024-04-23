@@ -1,14 +1,14 @@
-import React, { Component } from 'react'
-import {Vega} from 'react-vega'
+import React from 'react';
+import { Vega } from 'react-vega';
 
-export default class Chart extends Component {
-    
-    render() {
-        let spec = JSON.parse(this.props.spec);
-        return (
-            <div>
-                <Vega spec={spec} actions={false} signalListeners={{"brush": this.props.handleSignals}}/> 
-            </div>
-        )
-    }
-}
+const Chart = ({ spec, handleSignals }) => {
+  const parsedSpec = JSON.parse(spec);
+
+  return (
+    <div>
+      <Vega spec={parsedSpec} actions={false} signalListeners={{ "brush": handleSignals }} />
+    </div>
+  );
+};
+
+export default Chart;
