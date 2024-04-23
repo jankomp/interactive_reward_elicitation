@@ -3,7 +3,7 @@ import { Layout } from 'antd';
 import './Dashboard.css';
 import EmbeddingView from './EmbeddingView';
 // import BehaviorView from './BehaviorView';
-// import BehaviorGroupView from './BehaviorGroupView';
+import BehaviorGroupView from './BehaviorGroupView';
 // import AnalysisPanel from './AnalysisPanel';
 import { env } from './constants';
 
@@ -20,7 +20,7 @@ const Dashboard = () => {
   const [y2, setY2] = useState(null);
   const [showGroup, setShowGroup] = useState(true);
   const [embeddingData, setEmbeddingData] = useState(null);
-  const [filterEmbeddingData, setFilterEmbeddingData] = useState(null);
+  const [filteredEmbeddingData, setFilteredEmbeddingData] = useState(null);
   const [filters, setFilters] = useState([]);
 
   useEffect(() => {
@@ -28,11 +28,11 @@ const Dashboard = () => {
       .then((res) => res.json())
       .then((data) => {
         setEmbeddingData(data);
-        setFilterEmbeddingData(data);
+        setFilteredEmbeddingData(data);
       });
   }, []);
 
-  const updateRunId = (run_id) => {
+  const updateRunIds = (run_id) => {
     setRun(Number(run_id).toFixed(1));
     setShowGroup(false);
   };
@@ -44,7 +44,7 @@ const Dashboard = () => {
     setY1(y1);
     setY2(y2);
     console.log(filteredData);
-    setFilterEmbeddingData(filteredData);
+    setFilteredEmbeddingData(filteredData);
     setShowGroup(true);
   };
 
@@ -57,7 +57,7 @@ const Dashboard = () => {
     setX2(null);
     setY1(null);
     setY2(null);
-    setFilterEmbeddingData(embeddingData);
+    setFilteredEmbeddingData(embeddingData);
     setFilters([]);
   };
 
@@ -76,7 +76,7 @@ const Dashboard = () => {
       <Layout style={{ height: 920 }}>
         <Sider width={400} style={{ backgroundColor: '#eee' }}>
           <EmbeddingView
-            embeddingData={filterEmbeddingData}
+            embeddingData={filteredEmbeddingData}
             filters={filters}
             run={run}
             r={r}
@@ -84,27 +84,27 @@ const Dashboard = () => {
             x2={x2}
             y1={y1}
             y2={y2}
-            updateWeights={updateRunId}
+            updateRunIds={updateRunIds}
             updateFilter={updateFilter}
             resetFilter={resetFilter}
             showGroup={showGroup}
             updateShowGroup={setShowGroup}
           />
         </Sider>
-        {/* <Sider width={18} style={{ backgroundColor: '#eee' }}></Sider>
+        <Sider width={18} style={{ backgroundColor: '#eee' }}></Sider>
         <Sider width={1080} style={{ backgroundColor: '#eee' }}>
           <div className='pane'>
             <div className='header'>Sample View</div>
             <Layout style={{ height: 880 }}>
               <Sider width={450} style={{ backgroundColor: '#eee' }}>
-                {showGroup ? <BehaviorGroupView updateWeights={updateRunId} filterEmbeddingData={filterEmbeddingData} /> : <BehaviorView showGroup={showGroup} x1={x1} x2={x2} y1={y1} y2={y2} run={run} start={start} end={end} />}
+                {<BehaviorGroupView updateRunIds={updateRunIds} filteredEmbeddingData={filteredEmbeddingData} /> }
               </Sider>
-              <Sider width={610} style={{ backgroundColor: '#eee' }}>
+              {/* <Sider width={610} style={{ backgroundColor: '#eee' }}>
                 <AnalysisPanel showGroup={showGroup} x1={x1} x2={x2} y1={y1} y2={y2} w1={1} w2={1} w3={1} w4={1} filters={filters} start={start} end={end} updateRange={updateRange} addFilter={addFilter} />
-              </Sider>
+              </Sider> */}
             </Layout>
           </div>
-        </Sider> */}
+        </Sider>
       </Layout>
       <Layout>
         <Footer style={{ height: 20 }}>

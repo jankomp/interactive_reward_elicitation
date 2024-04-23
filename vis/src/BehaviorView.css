@@ -1,0 +1,25 @@
+#behavior {
+    height: 860px;
+    /* background-color: blue; */
+}
+
+.info-view {
+    float: left;
+    margin-left: 30px;
+    margin-top: 16px;
+}
+
+.image-container {
+    width:380; 
+    height: 380;
+    position: relative;
+}
+
+.image-container img {
+    width:380; 
+    height: 380;
+    position: absolute;
+    top: 0;
+    left: 0;
+    
+}
