@@ -21,10 +21,10 @@ function shuffle(array) {
     return array;
 }
 
-const GifList = ({ filteredEmbeddingData }) => {
+const GifList = ({ embeddingData }) => {
     let slicedData = [];
-    if (filteredEmbeddingData !== null) {
-        let data = filteredEmbeddingData
+    if (embeddingData !== null && embeddingData !== undefined) {
+        let data = embeddingData
         if (data.length > 10) {
             data = shuffle(data)
             slicedData = data.slice(0,10)

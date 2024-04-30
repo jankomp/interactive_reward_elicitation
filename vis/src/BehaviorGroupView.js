@@ -6,14 +6,25 @@ import GifList from './GifList';
 global.Buffer = global.Buffer || require('buffer').Buffer;
 
 
-const SampleGroupView = (updateRunID, filteredEmbeddingData) => {
-    const [expanded, setExpanded] = useState(false); 
+const BehaviorGroupView = ({updateRunID, embeddingData}) => {
+    const [expanded, setExpanded] = useState(true); 
+    console.log("BehaviorGroupView:", embeddingData);
+
+    const handleCollapseClick = () => {
+        setExpanded(false);
+      };
+
+    const handleExpandClick = () => {
+        setExpanded(true);
+      }
 
     if (expanded) {
-        return <GifList filteredEmbeddingData={filteredEmbeddingData} resetExpanded={setExpanded}/>;
+        return <><GifList embeddingData={embeddingData} />
+        <button onClick={handleCollapseClick}>Collapse</button></>;
     } else {
-        return <OverlayedGif filteredEmbeddingData={filteredEmbeddingData} resetExpanded={setExpanded} />;
+        return <><OverlayedGif embeddingData={embeddingData} />
+        <button onClick={handleExpandClick}>Expand</button></>;
     }
 };
 
-export default SampleGroupView;
+export default BehaviorGroupView;

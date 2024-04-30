@@ -153,16 +153,6 @@ const EmbeddingView = ({ run, r, updateShowGroup, updateFilter, resetFilter, sho
     resetFilter();
   };
 
-  let reward_chart = (
-    <div style={{ marginLeft: 100 }}>
-      <Chart spec={JSON.stringify(pie_spec)} />
-    </div>
-  );
-
-  if (showGroup) {
-    reward_chart = <Chart spec={JSON.stringify(parallel_coor_spec)} handleSignals={handleSignals} />;
-  }
-
   return (
     <div id='reward' className='pane'>
       <div className='header'>Embedding View</div>

@@ -43,8 +43,8 @@ const Dashboard = () => {
     setX2(x2);
     setY1(y1);
     setY2(y2);
-    console.log(filteredData);
     setFilteredEmbeddingData(filteredData);
+    console.log("Dashboard:", filteredEmbeddingData);
     setShowGroup(true);
   };
 
@@ -97,7 +97,7 @@ const Dashboard = () => {
             <div className='header'>Sample View</div>
             <Layout style={{ height: 880 }}>
               <Sider width={450} style={{ backgroundColor: '#eee' }}>
-                {<BehaviorGroupView updateRunIds={updateRunIds} filteredEmbeddingData={filteredEmbeddingData} /> }
+                {<BehaviorGroupView updateRunIds={updateRunIds} embeddingData={filteredEmbeddingData} /> }
               </Sider>
               {/* <Sider width={610} style={{ backgroundColor: '#eee' }}>
                 <AnalysisPanel showGroup={showGroup} x1={x1} x2={x2} y1={y1} y2={y2} w1={1} w2={1} w3={1} w4={1} filters={filters} start={start} end={end} updateRange={updateRange} addFilter={addFilter} />

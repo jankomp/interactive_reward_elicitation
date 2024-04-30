@@ -1,11 +1,10 @@
 import React, { useState, useEffect }  from 'react';
 import { env } from './constants';
 import { GifReader } from 'omggif';
-
 const GIFEncoder = require('gifencoder');
 
 async function overlayClips(gifPaths) {
-    if (gifPaths.length === 0) {
+    if (!gifPaths || gifPaths.length === 0) {
         return null;
     }
     // Create a Promise for each GIF path to read them asynchronously
@@ -13,6 +12,7 @@ async function overlayClips(gifPaths) {
 
     // Wait for all GIFs to be read
     const gifs = await Promise.all(gifPromises);
+    console.log("gifs:", gifs);
 
     // Get the number of frames in the first GIF
     const numFrames = gifs[0].numFrames();
@@ -97,20 +97,21 @@ function readGIF(path) {
     });
 }
 
-const OverlayedGif = ({ filteredEmbeddingData, resetExpanded }) => {
+const OverlayedGif = ({ embeddingData }) => {
     const [overlayGif, setOverlayGif] = useState(null);
+    console.log("OverlayedGif:", embeddingData);
     useEffect(() => {
         const fetchData = async () => {
-            console.log('overlayedGif ' + filteredEmbeddingData);
-            if (Array.isArray(filteredEmbeddingData)) {
-                console.log(filteredEmbeddingData, typeof filteredEmbeddingData);
-                let gifPaths = filteredEmbeddingData.map(embeddingData => `http://localhost:3000/gifs_${env}/training-episode-${embeddingData.key}.gif`);
+            console.log("filteredEmbeddingData:", embeddingData);
+            if (Array.isArray(embeddingData)) {
+                let gifPaths = embeddingData.map(embeddingData => `http://localhost:3000/gifs_${env}/training-episode-${embeddingData.key}.gif`);
+                console.log(gifPaths);
                 let overlayGif = await overlayClips(gifPaths);
                 setOverlayGif(overlayGif);
             }
         };
         fetchData();
-    }, [filteredEmbeddingData]);
+    }, [embeddingData]);
 
     return (
         <div id='behavior' className='subpane'>
@@ -120,7 +121,6 @@ const OverlayedGif = ({ filteredEmbeddingData, resetExpanded }) => {
                 {overlayGif &&
                     <>
                         <img src={overlayGif} alt="Overlay GIF" />
-                        <button title='Expand' onClick={resetExpanded(true)}>Expand behaviors</button>
                     </>
                 }
             </div>
