@@ -79,7 +79,7 @@ const Dashboard = () => {
         </Header>
       </Layout>
       <Layout style={{ height: 920 }}>
-        <Sider width={400} style={{ backgroundColor: '#eee' }}>
+        <Sider width={720} style={{ backgroundColor: '#eee' }}>
           <EmbeddingView
             embeddingData={filteredEmbeddingData}
             filters={filters}

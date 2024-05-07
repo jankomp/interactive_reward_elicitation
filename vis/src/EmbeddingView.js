@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './EmbeddingView.css';
 import { Button } from 'antd';
-import Chart from './Chart';
+import ThreeDChart from './ThreeDChart';
 import { env } from './constants';
 
 const EmbeddingView = ({ run, r, updateShowGroup, updateFilter, resetFilter, showGroup, filters }) => {
@@ -23,7 +23,8 @@ const EmbeddingView = ({ run, r, updateShowGroup, updateFilter, resetFilter, sho
     setKeepFilter(false);
   }, [run, r]);
 
-  let spec, parallel_coor_spec, pie_spec;
+  let spec;
+  let dataUrl = "http://localhost:3000/logs/embedding_" + env + ".json";
 
   spec = {
     "data": {
@@ -47,56 +48,6 @@ const EmbeddingView = ({ run, r, updateShowGroup, updateFilter, resetFilter, sho
         { "field": "key", "title": "run" },
         { "field": "r", "title": "r" },
       ],
-    }
-  };
-
-  parallel_coor_spec = {
-    "data": {
-      "url": "http://localhost:3000/logs/embedding_" + env + ".json"
-    },
-    "width": 380,
-    "height": 160,
-    "transform": [
-      { "filter": "datum['x']>=" + x1 + " && datum['x']<=" + x2 + " && datum['y']>=" + y1 + " && datum['y']<=" + y2 },
-      { "window": [{ "op": "count", "as": "index" }] },
-      { "fold": ["w1", "w2", "w3"] },
-      {
-        "joinaggregate": [
-          { "op": "min", "field": "value", "as": "min" },
-          { "op": "max", "field": "value", "as": "max" }
-        ],
-        "groupby": ["key"]
-      },
-      {
-        "calculate": "datum.value",
-        "as": "norm_val"
-      }
-    ],
-    "layer": [{
-      "mark": { "type": "rule", "color": "#ccc" },
-      "encoding": { "x": { "field": "key" } }
-    }, {
-      "mark": "line",
-      "encoding": {
-        "detail": { "type": "nominal", "field": "index" },
-        "opacity": { "value": 0.5 },
-        "x": { "type": "nominal", "field": "key" },
-        "y": { "type": "quantitative", "field": "norm_val", "scale": { "domain": [0.0, 1.0] }, "axis": null },
-        "tooltip": [{
-          "type": "quantitative",
-          "field": "run"
-        }, {
-          "type": "quantitative",
-          "field": "r"
-        }],
-      }
-    }],
-    "config": {
-      "axisX": { "domain": false, "labelAngle": 0, "tickColor": "#ccc", "title": null },
-      "style": {
-        "label": { "baseline": "middle", "align": "right", "dx": -5 },
-        "tick": { "orient": "horizontal" }
-      }
     }
   };
 
@@ -164,7 +115,7 @@ const EmbeddingView = ({ run, r, updateShowGroup, updateFilter, resetFilter, sho
       <div style={{ width: 420 }}>
         <div style={{ height: 5 }} />
         <div style={{ marginLeft: 5, fontSize: 16 }}>Behavior embedding</div>
-        <Chart spec={JSON.stringify(spec)} handleSignals={handleSignals} />
+        <ThreeDChart dataUrl={dataUrl} handleSignals={handleSignals} />
         <Button style={{ width: 380, marginLeft: 5 }} onClick={analyze}>Analyze</Button>
         <div style={{ height: 5 }} />
         <Button style={{ width: 380, marginLeft: 5 }} onClick={filter}>Filter</Button>

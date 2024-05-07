@@ -10080,6 +10080,16 @@ thenify-all@^1.0.0:
   dependencies:
     any-promise "^1.0.0"
 
+three-js@^79.0.0:
+  version "79.0.0"
+  resolved "https://registry.yarnpkg.com/three-js/-/three-js-79.0.0.tgz#0318eaacab286ddcf88fa3e1977e8a6ee6957b59"
+  integrity sha512-/jBULzQlazCXEh1OXFRg9gTcKcPvYYGkEC7ebCJGf4zBS3uHTO7KH3hKFtgYrT0m8jizce5Ews/2jkkmt5xBmw==
+
+three@^0.164.1:
+  version "0.164.1"
+  resolved "https://registry.yarnpkg.com/three/-/three-0.164.1.tgz#b742f76bd8dfd3736ba0d86a12dfddb73c5cdcc0"
+  integrity sha512-iC/hUBbl1vzFny7f5GtqzVXYjMJKaTPxiCxXfrvVdBi1Sf+jhd1CAkitiFwC7mIBFCo3MrDLJG97yisoaWig0w==
+
 throat@^6.0.1:
   version "6.0.2"
   resolved "https://registry.yarnpkg.com/throat/-/throat-6.0.2.tgz#51a3fbb5e11ae72e2cf74861ed5c8020f89f29fe"
