@@ -38,6 +38,11 @@ const EmbeddingView = ({ run, r, updateShowGroup, updateFilter, resetFilter, sho
     "encoding": {
       "x": { "field": "x", "type": "quantitative", "title": "Environment", "axis": { "ticks": false, "labels": false } },
       "y": { "field": "y", "type": "quantitative", "title": "Agent", "axis": { "ticks": false, "labels": false } },
+      "color": { 
+        "field": "r", 
+        "type": "quantitative",
+        "scale": { "domain": [-50, -10], "range": ["red", "green"] } // Add this line
+      },
       "tooltip": [
         { "field": "key", "title": "run" },
         { "field": "r", "title": "r" },
