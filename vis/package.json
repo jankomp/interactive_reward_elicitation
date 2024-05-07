@@ -9,6 +9,7 @@
     "antd": "^5.16.4",
     "buffer": "^6.0.3",
     "chart": "^0.1.2",
+    "delaunay-triangulate": "^1.1.6",
     "gifencoder": "^2.0.1",
     "omggif": "^1.0.10",
     "react": "^18.2.0",
