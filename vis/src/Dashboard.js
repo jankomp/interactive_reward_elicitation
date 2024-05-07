@@ -4,6 +4,7 @@ import './Dashboard.css';
 import EmbeddingView from './EmbeddingView';
 // import BehaviorView from './BehaviorView';
 import BehaviorGroupView from './BehaviorGroupView';
+import ComparisonView from './ComparisonView';
 // import AnalysisPanel from './AnalysisPanel';
 import { env } from './constants';
 
@@ -22,6 +23,7 @@ const Dashboard = () => {
   const [embeddingData, setEmbeddingData] = useState(null);
   const [filteredEmbeddingData, setFilteredEmbeddingData] = useState(null);
   const [filters, setFilters] = useState([]);
+  const [comparisonPair, setComparisonPair] = useState(null);
 
   useEffect(() => {
     fetch(`./logs/embedding_${env}.json`)
@@ -29,6 +31,9 @@ const Dashboard = () => {
       .then((data) => {
         setEmbeddingData(data);
         setFilteredEmbeddingData(data);
+        if (data.length > 0) {
+          setComparisonPair([data[0], data[1]]);
+        }
       });
   }, []);
 
@@ -97,11 +102,14 @@ const Dashboard = () => {
             <div className='header'>Sample View</div>
             <Layout style={{ height: 880 }}>
               <Sider width={450} style={{ backgroundColor: '#eee' }}>
-                {<BehaviorGroupView updateRunIds={updateRunIds} embeddingData={filteredEmbeddingData} /> }
+                {<BehaviorGroupView updateRunIds={updateRunIds} embeddingData={filteredEmbeddingData} />}
               </Sider>
               {/* <Sider width={610} style={{ backgroundColor: '#eee' }}>
                 <AnalysisPanel showGroup={showGroup} x1={x1} x2={x2} y1={y1} y2={y2} w1={1} w2={1} w3={1} w4={1} filters={filters} start={start} end={end} updateRange={updateRange} addFilter={addFilter} />
               </Sider> */}
+              <Sider width={500} style={{ backgroundColor: '#eee' }}>
+                <ComparisonView comparisonPair={comparisonPair} /> {/* Add the ComparisonView component here */}
+              </Sider>
             </Layout>
           </div>
         </Sider>

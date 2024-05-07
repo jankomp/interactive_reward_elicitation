@@ -1,0 +1,24 @@
+.gif-display {
+    display: flex;
+    justify-content: center;
+}
+
+.gif-container {
+    text-align: center;
+}
+
+.gif-container button {
+    width: 100px;
+}
+
+.button-container {
+    padding-top: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+.button-container button {
+    width: 250px;
+}
