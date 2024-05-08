@@ -1,6 +1,5 @@
 import React from 'react';
 import { Button, List } from 'antd';
-import GifPlayer from 'react-gif-player';
 import { env } from './constants';
 
 function shuffle(array) {
@@ -51,9 +50,9 @@ const GifList = ({ embeddingData }) => {
                     renderItem={(embeddingData) => (
                         <List.Item>
                             <div>
-                                <GifPlayer
+                                <img
                                     style={{width:200, height: 200, marginLeft: 8}}
-                                    gif={`http://localhost:3000/gifs_${env}/training-episode-${embeddingData.key}.gif`}
+                                    src={`http://localhost:3000/gifs_${env}/training-episode-${embeddingData.key}.gif`}
                                     autoplay={true}
                                 />
                                 <Button style={{width:200, height: 30, marginLeft: 8}} onClick={() => console.log('button clicked')}> {"r:"+embeddingData.r} </Button>

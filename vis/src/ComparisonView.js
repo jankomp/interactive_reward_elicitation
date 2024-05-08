@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import './ComparisonView.css';
-import GifPlayer from 'react-gif-player';
 import { env } from './constants';
 
 function ComparisonView({ comparisonPair }) {
@@ -40,17 +39,17 @@ function ComparisonView({ comparisonPair }) {
         <div className='header'>Comparison View</div>
             <div className="gif-display">
                 <div className="gif-container">
-                    <GifPlayer
+                    <img
                         style={{ width: 200, height: 200, marginLeft: 8 }}
-                        gif={gifPath1}
+                        src={gifPath1}
                         autoplay={true}
                     />
                     <button onClick={handleLeftClick}>Left</button>
                 </div>
                 <div className="gif-container">
-                    <GifPlayer
+                    <img
                         style={{ width: 200, height: 200, marginLeft: 8 }}
-                        gif={gifPath2}
+                        src={gifPath2}
                         autoplay={true}
                     />
                     <button onClick={handleRightClick}>Right</button>
