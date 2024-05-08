@@ -42,7 +42,7 @@ function ComparisonView({ comparisonPair }) {
                     <img
                         style={{ width: 200, height: 200, marginLeft: 8 }}
                         src={gifPath1}
-                        autoplay={true}
+                        autoPlay={true}
                     />
                     <button onClick={handleLeftClick}>Left</button>
                 </div>

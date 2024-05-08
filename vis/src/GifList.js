@@ -53,7 +53,7 @@ const GifList = ({ embeddingData }) => {
                                 <img
                                     style={{width:200, height: 200, marginLeft: 8}}
                                     src={`http://localhost:3000/gifs_${env}/training-episode-${embeddingData.key}.gif`}
-                                    autoplay={true}
+                                    autoPlay={true}
                                 />
                                 <Button style={{width:200, height: 30, marginLeft: 8}} onClick={() => console.log('button clicked')}> {"r:"+embeddingData.r} </Button>
                             </div>
