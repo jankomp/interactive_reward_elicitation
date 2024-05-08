@@ -14,9 +14,20 @@ const NewEmbeddingView = () => {
         const url = `http://localhost:3000/logs/log_${env}.csv`;
 
         d3.csv(url).then((data) => {
-            setColumns(Object.keys(data[0]).map(key => ({ value: key, label: key })));
+            // Group the data by the "run" column
+            const groupedData = d3.group(data, d => d.run);
 
-            if (data.length > 0 && !selectedX && !selectedY) {
+            // Compute the mean of all the steps for each run
+            const meanData = Array.from(groupedData, ([run, values]) => {
+                const meanValues = {};
+                for (const key of Object.keys(values[0])) {
+                    meanValues[key] = d3.mean(values, d => +d[key]);
+                }
+                return meanValues;
+            });
+            setColumns(Object.keys(meanData[0]).map(key => ({ value: key, label: key })));
+
+            if (meanData.length > 0 && !selectedX && !selectedY) {
                 setSelectedX({ value: 'x', label: 'x' });
                 setSelectedY({ value: 'y', label: 'y' });
             }
@@ -24,11 +35,11 @@ const NewEmbeddingView = () => {
                 svg.selectAll('*').remove();
 
                 const xScale = d3.scaleLinear()
-                    .domain(d3.extent(data, d => +d[xKey]))
+                    .domain(d3.extent(meanData, d => +d[xKey]))
                     .range([0, 500]);
 
                 const yScale = d3.scaleLinear()
-                    .domain(d3.extent(data, d => +d[yKey]))
+                    .domain(d3.extent(meanData, d => +d[yKey]))
                     .range([500, 0]);
 
                 // Add X gridlines
@@ -49,7 +60,7 @@ const NewEmbeddingView = () => {
                     )
 
                 svg.selectAll('circle')
-                    .data(data)
+                    .data(meanData)
                     .join('circle')
                     .attr('cx', d => xScale(+d[xKey]))
                     .attr('cy', d => yScale(+d[yKey]))
