@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import * as THREE from 'three';
-import { BufferGeometry, Float32BufferAttribute, ShaderMaterial, MeshLambertMaterial, Mesh, DirectionalLight } from 'three';
+import { BufferGeometry, Float32BufferAttribute, ShaderMaterial, MeshLambertMaterial, Mesh, DirectionalLight, Raycaster, Vector2  } from 'three';
 import triangulate from 'delaunay-triangulate';
 
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
@@ -27,6 +27,11 @@ const ThreeDChart = ({ dataUrl: dataUrl }) => {
                 chartRef.current.appendChild(renderer.domElement);
 
                 const controls = new OrbitControls(camera, renderer.domElement);
+                controls.mouseButtons = {
+                    LEFT: null,
+                    MIDDLE: THREE.MOUSE.ROTATE,
+                    RIGHT: THREE.MOUSE.PAN
+                }
 
                 // Create a material
                 const pointMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff });
