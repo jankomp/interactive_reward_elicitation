@@ -7,6 +7,7 @@ import BehaviorGroupView from './BehaviorGroupView';
 import ComparisonView from './ComparisonView';
 // import AnalysisPanel from './AnalysisPanel';
 import { env } from './constants';
+import NewEmbeddingView from './NewEmbeddingView';
 
 const { Header, Sider, Footer } = Layout;
 
@@ -79,8 +80,8 @@ const Dashboard = () => {
         </Header>
       </Layout>
       <Layout style={{ height: 920 }}>
-        <Sider width={400} style={{ backgroundColor: '#eee' }}>
-          <EmbeddingView
+        <Sider width={600} style={{ backgroundColor: '#eee' }}>
+          {/* <EmbeddingView
             embeddingData={filteredEmbeddingData}
             filters={filters}
             run={run}
@@ -94,7 +95,8 @@ const Dashboard = () => {
             resetFilter={resetFilter}
             showGroup={showGroup}
             updateShowGroup={setShowGroup}
-          />
+          /> */}
+        <NewEmbeddingView/>
         </Sider>
         <Sider width={18} style={{ backgroundColor: '#eee' }}></Sider>
         <Sider width={1080} style={{ backgroundColor: '#eee' }}>
