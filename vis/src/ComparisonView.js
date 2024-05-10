@@ -8,7 +8,6 @@ function ComparisonView({ comparisonPair }) {
 
     useEffect(() => {
         if (comparisonPair) {
-            console.log('Comparison pair:', comparisonPair);
             setGifPath1(`http://localhost:3000/gifs_${env}/training-episode-${comparisonPair[0].key}.gif`);
             setGifPath2(`http://localhost:3000/gifs_${env}/training-episode-${comparisonPair[1].key}.gif`);
         }
@@ -50,7 +49,7 @@ function ComparisonView({ comparisonPair }) {
                     <img
                         style={{ width: 200, height: 200, marginLeft: 8 }}
                         src={gifPath2}
-                        autoplay={true}
+                        autoPlay={true}
                     />
                     <button onClick={handleRightClick}>Right</button>
                 </div>

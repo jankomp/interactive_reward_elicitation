@@ -8,7 +8,6 @@ global.Buffer = global.Buffer || require('buffer').Buffer;
 
 const BehaviorGroupView = ({updateRunID, embeddingData}) => {
     const [expanded, setExpanded] = useState(true); 
-    console.log("BehaviorGroupView:", embeddingData);
 
     const handleCollapseClick = () => {
         setExpanded(false);
