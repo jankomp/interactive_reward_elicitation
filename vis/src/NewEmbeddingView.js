@@ -163,13 +163,45 @@ const NewEmbeddingView = () => {
                         .tickFormat("")
                     )
 
+
+                // Create a brush
+                const brush = d3.brush()
+                    .extent([[0, 0], [svgWidth, svgHeight]])
+                    .on("end", brushended);
+
+                // Append the brush to the SVG
+                svg.append("g")
+                    .attr("class", "brush")
+                    .call(brush);
+
+                function brushended(event) {
+                    if (!event.selection) return; // Ignore empty selections.
+
+                    // Get the bounds of the selection.
+                    const [[x0, y0], [x1, y1]] = event.selection;
+
+                    // Log all the selected points.
+                    svg.selectAll('circle')
+                        .each(function (d) {
+                            const cx = xScale(+d[xKey]);
+                            const cy = yScale(+d[yKey]);
+
+                            // Check if the point is within the selection bounds.
+                            if (x0 <= cx && cx <= x1 && y0 <= cy && cy <= y1) {
+                                console.log('selected ', d.run); // Log the selected data point.
+                            }
+                        });
+                }
                 svg.selectAll('circle')
                     .data(meanData)
                     .join('circle')
                     .attr('cx', d => xScale(+d[xKey]))
                     .attr('cy', d => yScale(+d[yKey]))
                     .attr('r', 5)
-                    .attr('fill', 'steelblue');
+                    .attr('fill', 'steelblue')
+                    .on('mouseover', function(e, d) {
+                        console.log('hover ', d.run);
+                    });
             };
 
             if (selectedXY || selectedX || selectedY) {
@@ -177,6 +209,7 @@ const NewEmbeddingView = () => {
             }
         });
     }, [selectedXY, selectedX, selectedY]);
+
 
     const handleTempXYChange = (options) => {
         if (isShiftDown) {
@@ -294,7 +327,7 @@ const NewEmbeddingView = () => {
             />
             <div className='embeddingChart square'>
                 <svg ref={ref} className='square-svg' />
-            {isLoading && <div className='loaderContainer'>creating embedding...<div className="loader" /></div>}
+                {isLoading && <div className='loaderContainer'>creating embedding...<div className="loader" /></div>}
             </div>
         </div>
     );
