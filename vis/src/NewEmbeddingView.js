@@ -12,8 +12,10 @@ const NewEmbeddingView = () => {
 
     const [isShiftDown, setIsShiftDown] = useState(false);
 
+    const [selectedXY, setSelectedXY] = useState(null);
     const [selectedX, setSelectedX] = useState(null);
     const [selectedY, setSelectedY] = useState(null);
+    const [tempSelectedXY, setTempSelectedXY] = useState(selectedXY);
     const [tempSelectedX, setTempSelectedX] = useState(selectedX);
     const [tempSelectedY, setTempSelectedY] = useState(selectedY);
 
@@ -66,6 +68,7 @@ const NewEmbeddingView = () => {
         const handleKeyUp = (event) => {
             if (event.key === 'Shift') {
                 setIsShiftDown(false);
+                handleXYChange(tempSelectedXY);
                 handleXChange(tempSelectedX);
                 handleYChange(tempSelectedY);
             }
@@ -78,12 +81,12 @@ const NewEmbeddingView = () => {
             window.removeEventListener('keydown', handleKeyDown);
             window.removeEventListener('keyup', handleKeyUp);
         };
-    }, [tempSelectedX, tempSelectedY]);
+    }, [tempSelectedXY, tempSelectedX, tempSelectedY]);
 
     useEffect(() => {
         const svg = d3.select(ref.current);
-        console.log(localStorage);
-        if (selectedX !== null || selectedY !== null) {
+
+        if (selectedXY !== null || selectedX !== null || selectedY !== null) {
             saveSelectionToLocalStorage();
         }
         if (selectedX === null) {
@@ -94,8 +97,10 @@ const NewEmbeddingView = () => {
             const localY = JSON.parse(localStorage.getItem('selectedY'));
             setSelectedY(localY);
         }
-        console.log('selectedX:', selectedX);
-        console.log('selectedY:', selectedY);
+        if (selectedXY === null) {
+            const localXY = JSON.parse(localStorage.getItem('selectedXY'));
+            setSelectedXY(localXY);
+        }
 
         d3.csv(url).then((data) => {
             // Group the data by the "run" column
@@ -112,7 +117,7 @@ const NewEmbeddingView = () => {
             setColumns(Object.keys(meanData[0]).map(key => ({ value: key, label: key })));
 
 
-            const drawPlot = (selectedX, selectedY) => {
+            const drawPlot = (selectedXY, selectedX, selectedY) => {
                 let xKey = '';
                 let yKey = '';
                 if (selectedX && Array.isArray(selectedX)) {
@@ -121,25 +126,32 @@ const NewEmbeddingView = () => {
                 if (selectedY && Array.isArray(selectedY)) {
                     yKey = selectedY.map(option => option.value).join('_');
                 }
+                if (selectedXY && Array.isArray(selectedXY)) {
+                    xKey = selectedXY.map(option => option.value).join('_') + '_x';
+                    yKey = selectedXY.map(option => option.value).join('_') + '_y';
+                }
                 //console.log('X key:', xKey);
                 //console.log('Y key:', yKey);
 
                 svg.selectAll('*').remove();
 
+                const svgWidth = svg.node().parentNode.clientWidth;
+                const svgHeight = svg.node().parentNode.clientHeight;
+
                 const xScale = d3.scaleLinear()
                     .domain(d3.extent(meanData, d => +d[xKey]))
-                    .range([0, 500]);
+                    .range([0, svgWidth]);
 
                 const yScale = d3.scaleLinear()
                     .domain(d3.extent(meanData, d => +d[yKey]))
-                    .range([500, 0]);
+                    .range([svgHeight, 0]);
 
                 // Add X gridlines
                 svg.append("g")
                     .attr("class", "grid")
-                    .attr("transform", "translate(0," + 500 + ")")
+                    .attr("transform", "translate(0," + svgHeight + ")")
                     .call(d3.axisBottom(xScale)
-                        .tickSize(-500)
+                        .tickSize(-svgHeight)
                         .tickFormat("")
                     )
 
@@ -147,7 +159,7 @@ const NewEmbeddingView = () => {
                 svg.append("g")
                     .attr("class", "grid")
                     .call(d3.axisLeft(yScale)
-                        .tickSize(-500)
+                        .tickSize(-svgWidth)
                         .tickFormat("")
                     )
 
@@ -160,12 +172,19 @@ const NewEmbeddingView = () => {
                     .attr('fill', 'steelblue');
             };
 
-            if (selectedX || selectedY) {
-                drawPlot(selectedX, selectedY);
+            if (selectedXY || selectedX || selectedY) {
+                drawPlot(selectedXY, selectedX, selectedY);
             }
         });
-    }, [selectedX, selectedY]);
+    }, [selectedXY, selectedX, selectedY]);
 
+    const handleTempXYChange = (options) => {
+        if (isShiftDown) {
+            setTempSelectedXY(options);
+        } else {
+            handleXYChange(options);
+        }
+    };
 
     const handleTempXChange = (options) => {
         if (isShiftDown) {
@@ -183,6 +202,20 @@ const NewEmbeddingView = () => {
         }
     };
 
+    const handleXYChange = options => {
+        if (options) {
+            const optionWithUnderscore = options.find(option => option.value.includes('_'));
+            if (optionWithUnderscore) {
+                options = [options[options.length - 1]];
+            } else {
+                populateDimension(url, options, 2);
+            }
+            setSelectedX(null);
+            setSelectedY(null);
+            setSelectedXY(options);
+        }
+    };
+
     const handleXChange = options => {
         if (options) {
             const optionWithUnderscore = options.find(option => option.value.includes('_'));
@@ -191,6 +224,7 @@ const NewEmbeddingView = () => {
             } else {
                 populateDimension(url, options, 1);
             }
+            setSelectedXY(null);
             setSelectedX(options);
         }
     };
@@ -203,16 +237,15 @@ const NewEmbeddingView = () => {
             } else {
                 populateDimension(url, options, 1);
             }
-
+            setSelectedXY(null);
             setSelectedY(options);
         }
     };
 
     const saveSelectionToLocalStorage = () => {
-        console.log('Saving selection to local storage');
+        localStorage.setItem('selectedXY', JSON.stringify(selectedXY));
         localStorage.setItem('selectedX', JSON.stringify(selectedX));
         localStorage.setItem('selectedY', JSON.stringify(selectedY));
-        console.log('localStorage:', localStorage);
     };
 
     const formatOptionLabel = (option, { context }) => {
@@ -232,11 +265,22 @@ const NewEmbeddingView = () => {
             <Select
                 isDisabled={isLoading}
                 options={columns}
+                value={isShiftDown ? tempSelectedXY : selectedXY}
+                onChange={handleTempXYChange}
+                formatOptionLabel={formatOptionLabel}
+                isMulti={true}
+                closeMenuOnSelect={!isShiftDown}
+                placeholder='Select columns for dimensional reduction to X-Y plane...'
+            />
+            <Select
+                isDisabled={isLoading}
+                options={columns}
                 value={isShiftDown ? tempSelectedX : selectedX}
                 onChange={handleTempXChange}
                 formatOptionLabel={formatOptionLabel}
                 isMulti={true}
                 closeMenuOnSelect={!isShiftDown}
+                placeholder='Select columns for X-axis...'
             />
             <Select
                 isDisabled={isLoading}
@@ -246,16 +290,12 @@ const NewEmbeddingView = () => {
                 formatOptionLabel={formatOptionLabel}
                 isMulti={true}
                 closeMenuOnSelect={!isShiftDown}
+                placeholder='Select columns for Y-axis...'
             />
-            <div style={{ position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                <svg
-                    ref={ref}
-                    width={500}
-                    height={500}
-                    style={{ backgroundColor: 'white' }}
-                />
-            </div>
+            <div className='embeddingChart square'>
+                <svg ref={ref} className='square-svg' />
             {isLoading && <div className='loaderContainer'>creating embedding...<div className="loader" /></div>}
+            </div>
         </div>
     );
 };
