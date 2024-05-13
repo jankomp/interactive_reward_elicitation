@@ -29,12 +29,12 @@ def convert_to_low_dimensional_data(high_dimensional_data_dict, lower_dimension)
     high_dimensional_data = np.array(high_dimensional_data)
 
     n_dimensions = high_dimensional_data.shape[-1]
-    print(high_dimensional_data.shape)
-    print('n_dimensions:', n_dimensions)
+    #print(high_dimensional_data.shape)
+    #print('n_dimensions:', n_dimensions)
 
     nsamples = len(high_dimensional_data)
     high_dimensional_data = high_dimensional_data.reshape((nsamples,episode_length*n_dimensions))
-    print(high_dimensional_data.shape)
+    #print(high_dimensional_data.shape)
 
     tsne = TSNE(n_components=lower_dimension, perplexity=4, metric=make_dtw_distance(episode_length, n_dimensions))
     low_dimensional_data = tsne.fit_transform(high_dimensional_data)
@@ -53,10 +53,11 @@ def main():
     input_url = '../public/logs/log_pusher.csv'
     selected_options = args.selected_options
     selected_options = ast.literal_eval(selected_options)
-    print('selected_options type:', type(selected_options))
+    selected_options = sorted(selected_options)
+    #print('selected_options type:', type(selected_options))
     n_dimensions = args.n_dimensions
 
-    print('selected_options:', selected_options)
+    #print('selected_options:', selected_options)
 
     if n_dimensions != 1 and n_dimensions != 2:
         raise ValueError("n_dimensions must be 1 or 2")

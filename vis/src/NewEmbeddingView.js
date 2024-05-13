@@ -2,16 +2,87 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import { env } from './constants';
 import Select from 'react-select';
+import './NewEmbeddingView.css';
 
 const NewEmbeddingView = () => {
+    const url = `http://localhost:3000/logs/log_${env}.csv`;
     const ref = useRef();
     const [columns, setColumns] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+
+    const [isShiftDown, setIsShiftDown] = useState(false);
+
     const [selectedX, setSelectedX] = useState(null);
     const [selectedY, setSelectedY] = useState(null);
+    const [tempSelectedX, setTempSelectedX] = useState(selectedX);
+    const [tempSelectedY, setTempSelectedY] = useState(selectedY);
+
+    const dimensionalReduction = (inputUrl, selectedOptions, dimensions) => {
+        setIsLoading(true);
+        return fetch(`http://localhost:3001/runPythonScript?inputUrl=${encodeURIComponent(JSON.stringify(inputUrl))}&selectedOptions=${encodeURIComponent(JSON.stringify(selectedOptions))}&dimensions=${encodeURIComponent(JSON.stringify(dimensions))}`)
+            .then(response => {
+                if (!response.ok) {
+                    console.log('Response:', response);
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                console.log('then');
+                setSelectedX([...selectedX, { value: selectedOptions.join('_'), label: selectedOptions.join('_') }]);
+                setSelectedY([...selectedY, { value: selectedOptions.join('_'), label: selectedOptions.join('_') }]);
+                return response;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            })
+            .finally(() => {
+                console.log('finally');
+                setIsLoading(false);
+            });
+    };
+
+    const populateDimension = (url, selectedOptions, nDimensions) => {
+        if (selectedOptions.length > 1) {
+            // order selectedOptions alphabetically and numerically
+            selectedOptions.sort((a, b) => a.value.localeCompare(b.value, undefined, { numeric: true }));
+            // if the option is already present in columns, do not add it again
+            const selectedOptionsKey = selectedOptions.map(option => option.value).join('_');
+            if (!columns.some(column => column.value === selectedOptionsKey)) {
+                dimensionalReduction(url, selectedOptions.map(option => option.value), nDimensions).then((result) => {
+                    console.log('Result:', result);
+                });
+            }
+        }
+    }
+
+
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            if (event.key === 'Shift') {
+                setIsShiftDown(true);
+            }
+        };
+
+        const handleKeyUp = (event) => {
+            if (event.key === 'Shift') {
+                setIsShiftDown(false);
+                handleXChange(tempSelectedX);
+                handleYChange(tempSelectedY);
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        window.addEventListener('keyup', handleKeyUp);
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+            window.removeEventListener('keyup', handleKeyUp);
+        };
+    }, [tempSelectedX, tempSelectedY]);
 
     useEffect(() => {
         const svg = d3.select(ref.current);
-        const url = `http://localhost:3000/logs/log_${env}.csv`;
+        console.log('Columns changed:', columns);
+        console.log('selectedX:', selectedX);
+        console.log('selectedY:', selectedY);
 
         d3.csv(url).then((data) => {
             // Group the data by the "run" column
@@ -27,11 +98,19 @@ const NewEmbeddingView = () => {
             });
             setColumns(Object.keys(meanData[0]).map(key => ({ value: key, label: key })));
 
-            if (meanData.length > 0 && !selectedX && !selectedY) {
-                setSelectedX({ value: 'x', label: 'x' });
-                setSelectedY({ value: 'y', label: 'y' });
-            }
-            const drawPlot = (xKey, yKey) => {
+
+            const drawPlot = (selectedX, selectedY) => {
+                let xKey = '';
+                let yKey = '';
+                if (selectedX) {
+                    xKey = selectedX.map(option => option.value).join('_');
+                }
+                if (selectedY) {
+                    yKey = selectedY.map(option => option.value).join('_');
+                }
+                //console.log('X key:', xKey);
+                //console.log('Y key:', yKey);
+
                 svg.selectAll('*').remove();
 
                 const xScale = d3.scaleLinear()
@@ -68,26 +147,60 @@ const NewEmbeddingView = () => {
                     .attr('fill', 'steelblue');
             };
 
-            if (selectedX && selectedY) {
-                drawPlot(selectedX.value, selectedY.value);
+            if (selectedX || selectedY) {
+                drawPlot(selectedX, selectedY);
             }
         });
     }, [selectedX, selectedY]);
 
-    const handleXChange = option => {
-        setSelectedX(option);
+
+    const handleTempXChange = (options) => {
+        if (isShiftDown) {
+            setTempSelectedX(options);
+        } else {
+            handleXChange(options);
+        }
     };
 
-    const handleYChange = option => {
-        setSelectedY(option);
+    const handleTempYChange = (options) => {
+        if (isShiftDown) {
+            setTempSelectedY(options);
+        } else {
+            handleYChange(options);
+        }
+    };
+
+    const handleXChange = options => {
+        if (options) {
+            const optionWithUnderscore = options.find(option => option.value.includes('_'));
+            if (optionWithUnderscore) {
+                options = [options[options.length - 1]];
+            } else {
+                populateDimension(url, options, 1);
+            }
+            setSelectedX(options);
+        }
+    };
+
+    const handleYChange = options => {
+        if (options) {
+            const optionWithUnderscore = options.find(option => option.value.includes('_'));
+            if (optionWithUnderscore) {
+                options = [options[options.length - 1]];
+            } else {
+                populateDimension(url, options, 1);
+            }
+
+            setSelectedY(options);
+        }
     };
 
     const formatOptionLabel = (option, { context }) => {
         if (context === 'menu') {
-            if (selectedX && option.value === selectedX.value) {
+            if (Array.isArray(selectedX) && selectedX.some(selectedOption => selectedOption.value === option.value)) {
                 return `${option.label} (selected for x-axis)`;
             }
-            if (selectedY && option.value === selectedY.value) {
+            if (Array.isArray(selectedY) && selectedY.some(selectedOption => selectedOption.value === option.value)) {
                 return `${option.label} (selected for y-axis)`;
             }
         }
@@ -96,19 +209,33 @@ const NewEmbeddingView = () => {
 
     return (
         <div>
-        <Select 
-            options={columns} 
-            value={selectedX} 
-            onChange={handleXChange} 
-            formatOptionLabel={formatOptionLabel}
-        />
-        <Select 
-            options={columns} 
-            value={selectedY} 
-            onChange={handleYChange} 
-            formatOptionLabel={formatOptionLabel}
-        />
-            <svg ref={ref} width={500} height={500} style={{ backgroundColor: 'white' }} />
+            <Select
+                isDisabled={isLoading}
+                options={columns}
+                value={isShiftDown ? tempSelectedX : selectedX}
+                onChange={handleTempXChange}
+                formatOptionLabel={formatOptionLabel}
+                isMulti={true}
+                closeMenuOnSelect={!isShiftDown}
+            />
+            <Select
+                isDisabled={isLoading}
+                options={columns}
+                value={isShiftDown ? tempSelectedY : selectedY}
+                onChange={handleTempYChange}
+                formatOptionLabel={formatOptionLabel}
+                isMulti={true}
+                closeMenuOnSelect={!isShiftDown}
+            />
+            <div style={{ position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                <svg
+                    ref={ref}
+                    width={500}
+                    height={500}
+                    style={{ backgroundColor: 'white' }}
+                />
+            </div>
+            {isLoading && <div className='loaderContainer'>creating embedding...<div className="loader" /></div>}
         </div>
     );
 };
