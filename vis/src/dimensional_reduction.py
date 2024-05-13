@@ -6,6 +6,7 @@ import argparse
 import json
 import csv
 import ast
+import re
    
 
 def make_dtw_distance(episode_length, n_dimensions):
@@ -53,7 +54,7 @@ def main():
     input_url = '../public/logs/log_pusher.csv'
     selected_options = args.selected_options
     selected_options = ast.literal_eval(selected_options)
-    selected_options = sorted(selected_options)
+    selected_options.sort(key=lambda x: int(re.search(r'\d+', x).group()))
     #print('selected_options type:', type(selected_options))
     n_dimensions = args.n_dimensions
 

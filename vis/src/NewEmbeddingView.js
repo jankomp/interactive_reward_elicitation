@@ -26,8 +26,6 @@ const NewEmbeddingView = () => {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 console.log('then');
-                setSelectedX([...selectedX, { value: selectedOptions.join('_'), label: selectedOptions.join('_') }]);
-                setSelectedY([...selectedY, { value: selectedOptions.join('_'), label: selectedOptions.join('_') }]);
                 return response;
             })
             .catch(error => {
@@ -42,7 +40,11 @@ const NewEmbeddingView = () => {
     const populateDimension = (url, selectedOptions, nDimensions) => {
         if (selectedOptions.length > 1) {
             // order selectedOptions alphabetically and numerically
-            selectedOptions.sort((a, b) => a.value.localeCompare(b.value, undefined, { numeric: true }));
+            selectedOptions.sort((a, b) => {
+                const numA = parseInt(a.value.match(/\d+/)[0]);
+                const numB = parseInt(b.value.match(/\d+/)[0]);
+                return numA - numB;
+            });
             // if the option is already present in columns, do not add it again
             const selectedOptionsKey = selectedOptions.map(option => option.value).join('_');
             if (!columns.some(column => column.value === selectedOptionsKey)) {
@@ -80,7 +82,18 @@ const NewEmbeddingView = () => {
 
     useEffect(() => {
         const svg = d3.select(ref.current);
-        console.log('Columns changed:', columns);
+        console.log(localStorage);
+        if (selectedX !== null || selectedY !== null) {
+            saveSelectionToLocalStorage();
+        }
+        if (selectedX === null) {
+            const localX = JSON.parse(localStorage.getItem('selectedX'));
+            setSelectedX(localX);
+        }
+        if (selectedY === null) {
+            const localY = JSON.parse(localStorage.getItem('selectedY'));
+            setSelectedY(localY);
+        }
         console.log('selectedX:', selectedX);
         console.log('selectedY:', selectedY);
 
@@ -102,10 +115,10 @@ const NewEmbeddingView = () => {
             const drawPlot = (selectedX, selectedY) => {
                 let xKey = '';
                 let yKey = '';
-                if (selectedX) {
+                if (selectedX && Array.isArray(selectedX)) {
                     xKey = selectedX.map(option => option.value).join('_');
                 }
-                if (selectedY) {
+                if (selectedY && Array.isArray(selectedY)) {
                     yKey = selectedY.map(option => option.value).join('_');
                 }
                 //console.log('X key:', xKey);
@@ -193,6 +206,13 @@ const NewEmbeddingView = () => {
 
             setSelectedY(options);
         }
+    };
+
+    const saveSelectionToLocalStorage = () => {
+        console.log('Saving selection to local storage');
+        localStorage.setItem('selectedX', JSON.stringify(selectedX));
+        localStorage.setItem('selectedY', JSON.stringify(selectedY));
+        console.log('localStorage:', localStorage);
     };
 
     const formatOptionLabel = (option, { context }) => {
