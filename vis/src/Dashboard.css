@@ -26,3 +26,10 @@
     /* border-radius: 5px; */
     height: 30px;
 }
+
+.embedding-view-container {
+    display: grid;
+    grid-template-columns: 3fr 3fr;
+    grid-template-rows: 5fr 5fr;
+    grid-gap: 20px;
+}

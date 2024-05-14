@@ -315,7 +315,7 @@ const NewEmbeddingView = ({ globalBrushedPoints, setGlobalBrushedPoints }) => {
     };
 
     return (
-        <div>
+        <div className="embedding-view">
             <Select
                 isDisabled={isLoading}
                 options={columns}
