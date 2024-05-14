@@ -4,7 +4,7 @@ import { env } from './constants';
 import Select from 'react-select';
 import './NewEmbeddingView.css';
 
-const NewEmbeddingView = () => {
+const NewEmbeddingView = ({ globalBrushedPoints, setGlobalBrushedPoints }) => {
     const url = `http://localhost:3000/logs/log_${env}.csv`;
     const ref = useRef();
     const [columns, setColumns] = useState([]);
@@ -18,6 +18,7 @@ const NewEmbeddingView = () => {
     const [tempSelectedXY, setTempSelectedXY] = useState(selectedXY);
     const [tempSelectedX, setTempSelectedX] = useState(selectedX);
     const [tempSelectedY, setTempSelectedY] = useState(selectedY);
+
 
     const dimensionalReduction = (inputUrl, selectedOptions, dimensions) => {
         setIsLoading(true);
@@ -164,51 +165,61 @@ const NewEmbeddingView = () => {
                     )
 
 
-                // Create a brush
-                const brush = d3.brush()
-                    .extent([[0, 0], [svgWidth, svgHeight]])
-                    .on("end", brushended);
-
-                // Append the brush to the SVG
-                svg.append("g")
-                    .attr("class", "brush")
-                    .call(brush);
+                function brushstarted() {
+                    svg.selectAll('circle').style('pointer-events', 'none');
+                }
 
                 function brushended(event) {
-                    if (!event.selection) return; // Ignore empty selections.
+                    svg.selectAll('circle').style('pointer-events', 'auto');
 
-                    // Get the bounds of the selection.
+                    if (!event.selection) return;
+
+                    setGlobalBrushedPoints([]);
+
                     const [[x0, y0], [x1, y1]] = event.selection;
 
-                    // Log all the selected points.
                     svg.selectAll('circle')
                         .each(function (d) {
                             const cx = xScale(+d[xKey]);
                             const cy = yScale(+d[yKey]);
 
-                            // Check if the point is within the selection bounds.
                             if (x0 <= cx && cx <= x1 && y0 <= cy && cy <= y1) {
-                                console.log('selected ', d.run); // Log the selected data point.
+                                console.log('selected ', d.run);
+                                setGlobalBrushedPoints(prevPoints => [...prevPoints, d.run]);
                             }
                         });
+                    console.log(globalBrushedPoints);
                 }
+
+                const brush = d3.brush()
+                    .extent([[0, 0], [svgWidth, svgHeight]])
+                    .on("start", brushstarted)
+                    .on("end", brushended);
+
+                svg.call(brush);
+
                 svg.selectAll('circle')
                     .data(meanData)
                     .join('circle')
                     .attr('cx', d => xScale(+d[xKey]))
                     .attr('cy', d => yScale(+d[yKey]))
-                    .attr('r', 5)
-                    .attr('fill', 'steelblue')
-                    .on('mouseover', function(e, d) {
+                    .on('mouseover', function (e, d) {
                         console.log('hover ', d.run);
-                    });
+                        setGlobalBrushedPoints(prevPoints => [...prevPoints, d.run]);
+                    })
+                    .on('mouseout', function (e, d) {
+                        console.log('out ', d.run);
+                        setGlobalBrushedPoints(prevPoints => prevPoints.filter(run => run !== d.run));
+                    })
+                    .attr('r', d => globalBrushedPoints.includes(d.run) ? 6 : 4)
+                    .attr('fill', 'steelblue');
             };
 
             if (selectedXY || selectedX || selectedY) {
                 drawPlot(selectedXY, selectedX, selectedY);
             }
         });
-    }, [selectedXY, selectedX, selectedY]);
+    }, [selectedXY, selectedX, selectedY, globalBrushedPoints]);
 
 
     const handleTempXYChange = (options) => {
