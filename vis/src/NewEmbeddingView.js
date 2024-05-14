@@ -4,7 +4,7 @@ import { env } from './constants';
 import Select from 'react-select';
 import './NewEmbeddingView.css';
 
-const NewEmbeddingView = ({ globalBrushedPoints, setGlobalBrushedPoints }) => {
+const NewEmbeddingView = ({ componentId, globalBrushedPoints, setGlobalBrushedPoints }) => {
     const url = `http://localhost:3000/logs/log_${env}.csv`;
     const ref = useRef();
     const [columns, setColumns] = useState([]);
@@ -90,18 +90,18 @@ const NewEmbeddingView = ({ globalBrushedPoints, setGlobalBrushedPoints }) => {
         const svg = d3.select(ref.current);
 
         if (selectedXY !== null || selectedX !== null || selectedY !== null) {
-            saveSelectionToLocalStorage();
+            saveSelectionToLocalStorage(componentId);
         }
         if (selectedX === null) {
-            const localX = JSON.parse(localStorage.getItem('selectedX'));
+            const localX = JSON.parse(localStorage.getItem(`selectedX_${componentId}`));
             setSelectedX(localX);
         }
         if (selectedY === null) {
-            const localY = JSON.parse(localStorage.getItem('selectedY'));
+            const localY = JSON.parse(localStorage.getItem(`selectedY_${componentId}`));
             setSelectedY(localY);
         }
         if (selectedXY === null) {
-            const localXY = JSON.parse(localStorage.getItem('selectedXY'));
+            const localXY = JSON.parse(localStorage.getItem(`selectedXY_${componentId}`));
             setSelectedXY(localXY);
         }
 
@@ -297,9 +297,9 @@ const NewEmbeddingView = ({ globalBrushedPoints, setGlobalBrushedPoints }) => {
     };
 
     const saveSelectionToLocalStorage = () => {
-        localStorage.setItem('selectedXY', JSON.stringify(selectedXY));
-        localStorage.setItem('selectedX', JSON.stringify(selectedX));
-        localStorage.setItem('selectedY', JSON.stringify(selectedY));
+        localStorage.setItem(`selectedXY_${componentId}`, JSON.stringify(selectedXY));
+        localStorage.setItem(`selectedX_${componentId}`, JSON.stringify(selectedX));
+        localStorage.setItem(`selectedY_${componentId}`, JSON.stringify(selectedY));
     };
 
     const formatOptionLabel = (option, { context }) => {

@@ -48,10 +48,10 @@ const Dashboard = () => {
       </Layout>
       <Layout style={{ height: 920 }}>
         <div className="embedding-view-container">
-          <NewEmbeddingView globalBrushedPoints={brushedPoints} setGlobalBrushedPoints={setBrushedPoints} />
-          <NewEmbeddingView globalBrushedPoints={brushedPoints} setGlobalBrushedPoints={setBrushedPoints} />
-          <NewEmbeddingView globalBrushedPoints={brushedPoints} setGlobalBrushedPoints={setBrushedPoints} />
-          <NewEmbeddingView globalBrushedPoints={brushedPoints} setGlobalBrushedPoints={setBrushedPoints} />
+          <NewEmbeddingView componentId={1} globalBrushedPoints={brushedPoints} setGlobalBrushedPoints={setBrushedPoints} />
+          <NewEmbeddingView componentId={2} globalBrushedPoints={brushedPoints} setGlobalBrushedPoints={setBrushedPoints} />
+          <NewEmbeddingView componentId={3} globalBrushedPoints={brushedPoints} setGlobalBrushedPoints={setBrushedPoints} />
+          <NewEmbeddingView componentId={4} globalBrushedPoints={brushedPoints} setGlobalBrushedPoints={setBrushedPoints} />
         </div>
         <Sider width={18} style={{ backgroundColor: '#eee' }}></Sider>
         <Sider width={1080} style={{ backgroundColor: '#eee' }}>
