@@ -19,6 +19,8 @@ const NewEmbeddingView = ({ globalBrushedPoints, setGlobalBrushedPoints }) => {
     const [tempSelectedX, setTempSelectedX] = useState(selectedX);
     const [tempSelectedY, setTempSelectedY] = useState(selectedY);
 
+    const [hoverPoint, setHoverPoint] = useState(null);
+
 
     const dimensionalReduction = (inputUrl, selectedOptions, dimensions) => {
         setIsLoading(true);
@@ -184,11 +186,10 @@ const NewEmbeddingView = ({ globalBrushedPoints, setGlobalBrushedPoints }) => {
                             const cy = yScale(+d[yKey]);
 
                             if (x0 <= cx && cx <= x1 && y0 <= cy && cy <= y1) {
-                                console.log('selected ', d.run);
                                 setGlobalBrushedPoints(prevPoints => [...prevPoints, d.run]);
                             }
                         });
-                    console.log(globalBrushedPoints);
+                    //console.log(globalBrushedPoints);
                 }
 
                 const brush = d3.brush()
@@ -204,12 +205,17 @@ const NewEmbeddingView = ({ globalBrushedPoints, setGlobalBrushedPoints }) => {
                     .attr('cx', d => xScale(+d[xKey]))
                     .attr('cy', d => yScale(+d[yKey]))
                     .on('mouseover', function (e, d) {
-                        console.log('hover ', d.run);
-                        setGlobalBrushedPoints(prevPoints => [...prevPoints, d.run]);
+                        if (!globalBrushedPoints.includes(d.run)) {
+                            setHoverPoint(d.run);
+                            setGlobalBrushedPoints(prevPoints => [...prevPoints, d.run]);
+                        }
                     })
                     .on('mouseout', function (e, d) {
-                        console.log('out ', d.run);
-                        setGlobalBrushedPoints(prevPoints => prevPoints.filter(run => run !== d.run));
+                        //console.log('out ', d.run);
+                        if (hoverPoint === d.run) {
+                            setHoverPoint(null);
+                            setGlobalBrushedPoints(prevPoints => prevPoints.filter(run => run !== d.run));
+                        }
                     })
                     .attr('r', d => globalBrushedPoints.includes(d.run) ? 6 : 4)
                     .attr('fill', 'steelblue');
@@ -254,7 +260,9 @@ const NewEmbeddingView = ({ globalBrushedPoints, setGlobalBrushedPoints }) => {
             } else {
                 populateDimension(url, options, 2);
             }
+            setTempSelectedX(null);
             setSelectedX(null);
+            setTempSelectedY(null);
             setSelectedY(null);
             setSelectedXY(options);
         }
@@ -268,6 +276,7 @@ const NewEmbeddingView = ({ globalBrushedPoints, setGlobalBrushedPoints }) => {
             } else {
                 populateDimension(url, options, 1);
             }
+            setTempSelectedXY(null);
             setSelectedXY(null);
             setSelectedX(options);
         }
@@ -281,6 +290,7 @@ const NewEmbeddingView = ({ globalBrushedPoints, setGlobalBrushedPoints }) => {
             } else {
                 populateDimension(url, options, 1);
             }
+            setTempSelectedXY(null);
             setSelectedXY(null);
             setSelectedY(options);
         }

@@ -22,16 +22,21 @@ const Dashboard = () => {
       .then((res) => res.json())
       .then((data) => {
         setEmbeddingData(data);
+
+        // Remove duplicates
+        data = data.reduce((acc, current) => {
+          const x = acc.findIndex(item => item.key === current.key);
+          if (x <= -1) {
+            acc.push(current);
+          }
+          return acc;
+        }, []);
         setFilteredEmbeddingData(data);
         if (data.length > 0) {
           setComparisonPair([data[0], data[1]]);
         }
       });
   }, []);
-
-  const updateRunIds = (run_id) => {
-    
-  };
 
 
   return (
@@ -43,9 +48,9 @@ const Dashboard = () => {
       </Layout>
       <Layout style={{ height: 920 }}>
         <Sider width={330} style={{ backgroundColor: '#eee' }}>
-          <NewEmbeddingView globalBrushedPoints={brushedPoints} setGlobalBrushedPoints={setBrushedPoints}/>
+          <NewEmbeddingView globalBrushedPoints={brushedPoints} setGlobalBrushedPoints={setBrushedPoints} />
           <br />
-          <NewEmbeddingView globalBrushedPoints={brushedPoints} setGlobalBrushedPoints={setBrushedPoints}/>
+          <NewEmbeddingView globalBrushedPoints={brushedPoints} setGlobalBrushedPoints={setBrushedPoints} />
         </Sider>
         <Sider width={18} style={{ backgroundColor: '#eee' }}></Sider>
         <Sider width={1080} style={{ backgroundColor: '#eee' }}>
@@ -53,7 +58,7 @@ const Dashboard = () => {
             <div className='header'>Sample View</div>
             <Layout style={{ height: 880 }}>
               <Sider width={450} style={{ backgroundColor: '#eee' }}>
-                {<BehaviorGroupView updateRunIds={updateRunIds} embeddingData={filteredEmbeddingData} />}
+                {<BehaviorGroupView selectedBehaviors={brushedPoints} selectBehavior={setBrushedPoints} embeddingData={filteredEmbeddingData} />}
               </Sider>
               {/* <Sider width={610} style={{ backgroundColor: '#eee' }}>
                 <AnalysisPanel showGroup={showGroup} x1={x1} x2={x2} y1={y1} y2={y2} w1={1} w2={1} w3={1} w4={1} filters={filters} start={start} end={end} updateRange={updateRange} addFilter={addFilter} />

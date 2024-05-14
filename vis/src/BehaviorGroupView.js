@@ -6,7 +6,7 @@ import GifList from './GifList';
 global.Buffer = global.Buffer || require('buffer').Buffer;
 
 
-const BehaviorGroupView = ({updateRunID, embeddingData}) => {
+const BehaviorGroupView = ({selectedBehaviors, selectBehavior, embeddingData}) => {
     const [expanded, setExpanded] = useState(true); 
 
     const handleCollapseClick = () => {
@@ -18,7 +18,7 @@ const BehaviorGroupView = ({updateRunID, embeddingData}) => {
       }
 
     if (expanded) {
-        return <><GifList embeddingData={embeddingData} />
+        return <><GifList embeddingData={embeddingData} selectedBehaviors={selectedBehaviors} selectBehavior={selectBehavior}/>
         <button onClick={handleCollapseClick}>Collapse</button></>;
     } else {
         return <><OverlayedGif embeddingData={embeddingData} />
