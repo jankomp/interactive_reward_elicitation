@@ -314,9 +314,28 @@ const NewEmbeddingView = ({ componentId, globalBrushedPoints, setGlobalBrushedPo
         return option.label;
     };
 
+
+    const customSelectStyles = {
+        valueContainer: (provided) => ({
+            ...provided,
+            display: 'block',
+            width: '100px',
+            overflow: 'hidden',
+            whiteSpace: 'nowrap',
+            textOverflow: 'ellipsis',
+
+        }),
+        multiValue: (provided) => ({
+            ...provided,
+            display: 'inline-flex',
+            margin: '2px',
+        }),
+    };
+
     return (
         <div className="embedding-view">
             <Select
+                styles={customSelectStyles}
                 isDisabled={isLoading}
                 options={columns}
                 value={isShiftDown ? tempSelectedXY : selectedXY}
@@ -327,6 +346,7 @@ const NewEmbeddingView = ({ componentId, globalBrushedPoints, setGlobalBrushedPo
                 placeholder='Select columns for dimensional reduction to X-Y plane...'
             />
             <Select
+                styles={customSelectStyles}
                 isDisabled={isLoading}
                 options={columns}
                 value={isShiftDown ? tempSelectedX : selectedX}
@@ -337,6 +357,7 @@ const NewEmbeddingView = ({ componentId, globalBrushedPoints, setGlobalBrushedPo
                 placeholder='Select columns for X-axis...'
             />
             <Select
+                styles={customSelectStyles}
                 isDisabled={isLoading}
                 options={columns}
                 value={isShiftDown ? tempSelectedY : selectedY}
