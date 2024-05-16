@@ -8,6 +8,7 @@ import ComparisonView from './ComparisonView';
 // import AnalysisPanel from './AnalysisPanel';
 import { env } from './constants';
 import NewEmbeddingView from './NewEmbeddingView';
+import { ResizableBox } from 'react-resizable';
 
 const { Header, Sider, Footer } = Layout;
 
@@ -16,6 +17,11 @@ const Dashboard = () => {
   const [filteredEmbeddingData, setFilteredEmbeddingData] = useState(null);
   const [comparisonPair, setComparisonPair] = useState(null);
   const [brushedPoints, setBrushedPoints] = useState([]);
+  const [resizeKey, setResizeKey] = useState(false);
+
+  const [width, setWidth] = useState(200);
+  const [height, setHeight] = useState(120);
+  const [dropdownsHeight, setDropdownsHeight] = useState(0);
 
   useEffect(() => {
     fetch(`./logs/embedding_${env}.json`)
@@ -39,6 +45,12 @@ const Dashboard = () => {
   }, []);
 
 
+  const handleResize = (event, { size }) => {
+    setWidth(size.width);
+    setHeight(size.width + dropdownsHeight);
+  };
+
+
   return (
     <div>
       <Layout>
@@ -48,10 +60,19 @@ const Dashboard = () => {
       </Layout>
       <Layout style={{ height: 920 }}>
         <div className="embedding-view-container">
-          <NewEmbeddingView componentId={1} globalBrushedPoints={brushedPoints} setGlobalBrushedPoints={setBrushedPoints} />
-          <NewEmbeddingView componentId={2} globalBrushedPoints={brushedPoints} setGlobalBrushedPoints={setBrushedPoints} />
-          <NewEmbeddingView componentId={3} globalBrushedPoints={brushedPoints} setGlobalBrushedPoints={setBrushedPoints} />
-          <NewEmbeddingView componentId={4} globalBrushedPoints={brushedPoints} setGlobalBrushedPoints={setBrushedPoints} />
+
+          <ResizableBox className="box" width={width} height={height} onResize={handleResize} onResizeStop={() => setResizeKey(key => !key)}>
+            <NewEmbeddingView componentId={1} globalBrushedPoints={brushedPoints} setGlobalBrushedPoints={setBrushedPoints} resizeKey={resizeKey} setDropdownsHeight={setDropdownsHeight}/>
+          </ResizableBox>
+          <ResizableBox className="box" width={width} height={height} onResize={handleResize}onResizeStop={() => setResizeKey(key => !key)}>
+            <NewEmbeddingView componentId={2} globalBrushedPoints={brushedPoints} setGlobalBrushedPoints={setBrushedPoints} resizeKey={resizeKey} setDropdownsHeight={setDropdownsHeight}/>
+          </ResizableBox>
+          <ResizableBox className="box" width={width} height={height} onResize={handleResize}onResizeStop={() => setResizeKey(key => !key)}>
+            <NewEmbeddingView componentId={3} globalBrushedPoints={brushedPoints} setGlobalBrushedPoints={setBrushedPoints} resizeKey={resizeKey} setDropdownsHeight={setDropdownsHeight}/>
+          </ResizableBox>
+          <ResizableBox className="box" width={width} height={height} onResize={handleResize}onResizeStop={() => setResizeKey(key => !key)}>
+            <NewEmbeddingView componentId={4} globalBrushedPoints={brushedPoints} setGlobalBrushedPoints={setBrushedPoints} resizeKey={resizeKey} setDropdownsHeight={setDropdownsHeight}/>
+          </ResizableBox>
         </div>
         <Sider width={18} style={{ backgroundColor: '#eee' }}></Sider>
         <Sider width={1080} style={{ backgroundColor: '#eee' }}>

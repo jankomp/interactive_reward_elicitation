@@ -4,7 +4,7 @@ import { env } from './constants';
 import Select from 'react-select';
 import './NewEmbeddingView.css';
 
-const NewEmbeddingView = ({ componentId, globalBrushedPoints, setGlobalBrushedPoints }) => {
+const NewEmbeddingView = ({ componentId, globalBrushedPoints, setGlobalBrushedPoints, resizeKey, setDropdownsHeight}) => {
     const url = `http://localhost:3000/logs/log_${env}.csv`;
     const ref = useRef();
     const [columns, setColumns] = useState([]);
@@ -59,6 +59,11 @@ const NewEmbeddingView = ({ componentId, globalBrushedPoints, setGlobalBrushedPo
             }
         }
     }
+
+    useEffect(() => {
+        const dropdownsHeight = document.querySelector('.embedding-view').offsetHeight;
+        setDropdownsHeight(dropdownsHeight);
+      }, []);
 
 
     useEffect(() => {
@@ -225,7 +230,7 @@ const NewEmbeddingView = ({ componentId, globalBrushedPoints, setGlobalBrushedPo
                 drawPlot(selectedXY, selectedX, selectedY);
             }
         });
-    }, [selectedXY, selectedX, selectedY, globalBrushedPoints]);
+    }, [selectedXY, selectedX, selectedY, globalBrushedPoints, resizeKey]);
 
 
     const handleTempXYChange = (options) => {
