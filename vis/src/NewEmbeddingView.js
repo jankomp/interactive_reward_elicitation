@@ -1,114 +1,44 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import * as d3 from 'd3';
 import { env } from './constants';
 import Select from 'react-select';
 import './NewEmbeddingView.css';
 
-const NewEmbeddingView = ({ componentId, globalBrushedPoints, setGlobalBrushedPoints, resizeKey, setDropdownsHeight}) => {
+const NewEmbeddingView = ({ componentId, globalBrushedPoints, setGlobalBrushedPoints, resizeKey, setDropdownsHeight }) => {
     const url = `http://localhost:3000/logs/log_${env}.csv`;
     const ref = useRef();
+    const dualDimensionColumns = useState([]);
+    const singleDimensionColumns = useState([]);
     const [columns, setColumns] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
-
-    const [isShiftDown, setIsShiftDown] = useState(false);
 
     const [selectedXY, setSelectedXY] = useState(null);
     const [selectedX, setSelectedX] = useState(null);
     const [selectedY, setSelectedY] = useState(null);
-    const [tempSelectedXY, setTempSelectedXY] = useState(selectedXY);
-    const [tempSelectedX, setTempSelectedX] = useState(selectedX);
-    const [tempSelectedY, setTempSelectedY] = useState(selectedY);
 
     const [hoverPoint, setHoverPoint] = useState(null);
-
-
-    const dimensionalReduction = (inputUrl, selectedOptions, dimensions) => {
-        setIsLoading(true);
-        return fetch(`http://localhost:3001/runPythonScript?inputUrl=${encodeURIComponent(JSON.stringify(inputUrl))}&selectedOptions=${encodeURIComponent(JSON.stringify(selectedOptions))}&dimensions=${encodeURIComponent(JSON.stringify(dimensions))}`)
-            .then(response => {
-                if (!response.ok) {
-                    console.log('Response:', response);
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                console.log('then');
-                return response;
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            })
-            .finally(() => {
-                console.log('finally');
-                setIsLoading(false);
-            });
-    };
-
-    const populateDimension = (url, selectedOptions, nDimensions) => {
-        if (selectedOptions.length > 1) {
-            // order selectedOptions alphabetically and numerically
-            selectedOptions.sort((a, b) => {
-                const numA = parseInt(a.value.match(/\d+/)[0]);
-                const numB = parseInt(b.value.match(/\d+/)[0]);
-                return numA - numB;
-            });
-            // if the option is already present in columns, do not add it again
-            const selectedOptionsKey = selectedOptions.map(option => option.value).join('_');
-            if (!columns.some(column => column.value === selectedOptionsKey)) {
-                dimensionalReduction(url, selectedOptions.map(option => option.value), nDimensions).then((result) => {
-                    console.log('Result:', result);
-                });
-            }
-        }
-    }
 
     useEffect(() => {
         const dropdownsHeight = document.querySelector('.embedding-view').offsetHeight;
         setDropdownsHeight(dropdownsHeight);
-      }, []);
-
+    }, [setDropdownsHeight]);
 
     useEffect(() => {
-        const handleKeyDown = (event) => {
-            if (event.key === 'Shift') {
-                setIsShiftDown(true);
+        for (let i = 0; i < columns.length; i++) {
+            if (columns[i].value.endsWith('_x') || columns[i].value.endsWith('_y')) {
+                const columnName = columns[i].value.slice(0, -2);
+                const option = { value: columnName, label: columnName };
+                if (!dualDimensionColumns.some(o => o.value === option.value)) {
+                    dualDimensionColumns.push(option);
+                }
+            } else {
+                singleDimensionColumns.push(columns[i]);
             }
-        };
+        }
+    }, [columns, dualDimensionColumns, singleDimensionColumns]);
 
-        const handleKeyUp = (event) => {
-            if (event.key === 'Shift') {
-                setIsShiftDown(false);
-                handleXYChange(tempSelectedXY);
-                handleXChange(tempSelectedX);
-                handleYChange(tempSelectedY);
-            }
-        };
-
-        window.addEventListener('keydown', handleKeyDown);
-        window.addEventListener('keyup', handleKeyUp);
-
-        return () => {
-            window.removeEventListener('keydown', handleKeyDown);
-            window.removeEventListener('keyup', handleKeyUp);
-        };
-    }, [tempSelectedXY, tempSelectedX, tempSelectedY]);
 
     useEffect(() => {
         const svg = d3.select(ref.current);
-
-        if (selectedXY !== null || selectedX !== null || selectedY !== null) {
-            saveSelectionToLocalStorage(componentId);
-        }
-        if (selectedX === null) {
-            const localX = JSON.parse(localStorage.getItem(`selectedX_${componentId}`));
-            setSelectedX(localX);
-        }
-        if (selectedY === null) {
-            const localY = JSON.parse(localStorage.getItem(`selectedY_${componentId}`));
-            setSelectedY(localY);
-        }
-        if (selectedXY === null) {
-            const localXY = JSON.parse(localStorage.getItem(`selectedXY_${componentId}`));
-            setSelectedXY(localXY);
-        }
 
         d3.csv(url).then((data) => {
             // Group the data by the "run" column
@@ -128,18 +58,16 @@ const NewEmbeddingView = ({ componentId, globalBrushedPoints, setGlobalBrushedPo
             const drawPlot = (selectedXY, selectedX, selectedY) => {
                 let xKey = '';
                 let yKey = '';
-                if (selectedX && Array.isArray(selectedX)) {
-                    xKey = selectedX.map(option => option.value).join('_');
+                if (selectedX) {
+                    xKey = selectedX.value;
                 }
-                if (selectedY && Array.isArray(selectedY)) {
-                    yKey = selectedY.map(option => option.value).join('_');
+                if (selectedY) {
+                    yKey = selectedY.value;
                 }
-                if (selectedXY && Array.isArray(selectedXY)) {
-                    xKey = selectedXY.map(option => option.value).join('_') + '_x';
-                    yKey = selectedXY.map(option => option.value).join('_') + '_y';
+                if (selectedXY) {
+                    xKey = selectedXY.value + '_x';
+                    yKey = selectedXY.value + '_y';
                 }
-                //console.log('X key:', xKey);
-                //console.log('Y key:', yKey);
 
                 svg.selectAll('*').remove();
 
@@ -230,89 +158,36 @@ const NewEmbeddingView = ({ componentId, globalBrushedPoints, setGlobalBrushedPo
                 drawPlot(selectedXY, selectedX, selectedY);
             }
         });
-    }, [selectedXY, selectedX, selectedY, globalBrushedPoints, resizeKey]);
+    }, [selectedXY, selectedX, selectedY, globalBrushedPoints, resizeKey, hoverPoint, url, setGlobalBrushedPoints]);
 
-
-    const handleTempXYChange = (options) => {
-        if (isShiftDown) {
-            setTempSelectedXY(options);
-        } else {
-            handleXYChange(options);
-        }
-    };
-
-    const handleTempXChange = (options) => {
-        if (isShiftDown) {
-            setTempSelectedX(options);
-        } else {
-            handleXChange(options);
-        }
-    };
-
-    const handleTempYChange = (options) => {
-        if (isShiftDown) {
-            setTempSelectedY(options);
-        } else {
-            handleYChange(options);
-        }
-    };
-
-    const handleXYChange = options => {
-        if (options) {
-            const optionWithUnderscore = options.find(option => option.value.includes('_'));
-            if (optionWithUnderscore) {
-                options = [options[options.length - 1]];
-            } else {
-                populateDimension(url, options, 2);
-            }
-            setTempSelectedX(null);
+    const handleXYChange = option => {
+        if (option) {
             setSelectedX(null);
-            setTempSelectedY(null);
             setSelectedY(null);
-            setSelectedXY(options);
+            setSelectedXY(option);
         }
     };
 
-    const handleXChange = options => {
-        if (options) {
-            const optionWithUnderscore = options.find(option => option.value.includes('_'));
-            if (optionWithUnderscore) {
-                options = [options[options.length - 1]];
-            } else {
-                populateDimension(url, options, 1);
-            }
-            setTempSelectedXY(null);
+    const handleXChange = option => {
+        if (option) {
             setSelectedXY(null);
-            setSelectedX(options);
+            setSelectedX(option);
         }
     };
 
-    const handleYChange = options => {
-        if (options) {
-            const optionWithUnderscore = options.find(option => option.value.includes('_'));
-            if (optionWithUnderscore) {
-                options = [options[options.length - 1]];
-            } else {
-                populateDimension(url, options, 1);
-            }
-            setTempSelectedXY(null);
+    const handleYChange = option => {
+        if (option) {
             setSelectedXY(null);
-            setSelectedY(options);
+            setSelectedY(option);
         }
-    };
-
-    const saveSelectionToLocalStorage = () => {
-        localStorage.setItem(`selectedXY_${componentId}`, JSON.stringify(selectedXY));
-        localStorage.setItem(`selectedX_${componentId}`, JSON.stringify(selectedX));
-        localStorage.setItem(`selectedY_${componentId}`, JSON.stringify(selectedY));
     };
 
     const formatOptionLabel = (option, { context }) => {
         if (context === 'menu') {
-            if (Array.isArray(selectedX) && selectedX.some(selectedOption => selectedOption.value === option.value)) {
+            if (selectedX !== null && selectedX.value === option.value) {
                 return `${option.label} (selected for x-axis)`;
             }
-            if (Array.isArray(selectedY) && selectedY.some(selectedOption => selectedOption.value === option.value)) {
+            if (selectedY !== null && selectedY.value === option.value) {
                 return `${option.label} (selected for y-axis)`;
             }
         }
@@ -341,40 +216,30 @@ const NewEmbeddingView = ({ componentId, globalBrushedPoints, setGlobalBrushedPo
         <div className="embedding-view">
             <Select
                 styles={customSelectStyles}
-                isDisabled={isLoading}
-                options={columns}
-                value={isShiftDown ? tempSelectedXY : selectedXY}
-                onChange={handleTempXYChange}
+                options={dualDimensionColumns}
+                value={selectedXY}
+                onChange={handleXYChange}
                 formatOptionLabel={formatOptionLabel}
-                isMulti={true}
-                closeMenuOnSelect={!isShiftDown}
-                placeholder='Select columns for dimensional reduction to X-Y plane...'
+                placeholder='Select columns for X-Y plane...'
             />
             <Select
                 styles={customSelectStyles}
-                isDisabled={isLoading}
-                options={columns}
-                value={isShiftDown ? tempSelectedX : selectedX}
-                onChange={handleTempXChange}
+                options={singleDimensionColumns}
+                value={selectedX}
+                onChange={handleXChange}
                 formatOptionLabel={formatOptionLabel}
-                isMulti={true}
-                closeMenuOnSelect={!isShiftDown}
                 placeholder='Select columns for X-axis...'
             />
             <Select
                 styles={customSelectStyles}
-                isDisabled={isLoading}
-                options={columns}
-                value={isShiftDown ? tempSelectedY : selectedY}
-                onChange={handleTempYChange}
+                options={singleDimensionColumns}
+                value={selectedY}
+                onChange={handleYChange}
                 formatOptionLabel={formatOptionLabel}
-                isMulti={true}
-                closeMenuOnSelect={!isShiftDown}
                 placeholder='Select columns for Y-axis...'
             />
             <div className='embeddingChart square'>
                 <svg ref={ref} className='square-svg' />
-                {isLoading && <div className='loaderContainer'>creating embedding...<div className="loader" /></div>}
             </div>
         </div>
     );

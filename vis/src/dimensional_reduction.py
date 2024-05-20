@@ -22,7 +22,7 @@ def make_dtw_distance(episode_length, n_dimensions):
         return dtw_distance
     
 def convert_to_low_dimensional_data(high_dimensional_data_dict, lower_dimension):
-    episode_length = 100
+    episode_length = 50
     high_dimensional_data = []
     for i, key in enumerate(high_dimensional_data_dict):
         high_dimensional_data.append(np.array(high_dimensional_data_dict[key][:episode_length]))
@@ -51,7 +51,7 @@ def main():
     parser.add_argument('selected_options', type=str)
     parser.add_argument('n_dimensions', type=int)
     args = parser.parse_args()
-    input_url = '../public/logs/log_pusher.csv'
+    input_url = '../public/logs/log_reacher.csv'
     selected_options = args.selected_options
     selected_options = ast.literal_eval(selected_options)
     selected_options.sort(key=lambda x: int(re.search(r'\d+', x).group()))

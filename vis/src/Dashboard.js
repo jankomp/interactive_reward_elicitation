@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Layout } from 'antd';
 import './Dashboard.css';
-import EmbeddingView from './EmbeddingView';
 // import BehaviorView from './BehaviorView';
 import BehaviorGroupView from './BehaviorGroupView';
 import ComparisonView from './ComparisonView';
@@ -16,7 +15,11 @@ const Dashboard = () => {
   const [embeddingData, setEmbeddingData] = useState(null);
   const [filteredEmbeddingData, setFilteredEmbeddingData] = useState(null);
   const [comparisonPair, setComparisonPair] = useState(null);
-  const [brushedPoints, setBrushedPoints] = useState([]);
+  const [brushedPoints, setBrushedPointsState] = useState([]);
+  const setBrushedPoints = useCallback((points) => {
+    setBrushedPointsState(points);
+  }, []);
+
   const [resizeKey, setResizeKey] = useState(false);
 
   const [width, setWidth] = useState(200);
@@ -43,7 +46,6 @@ const Dashboard = () => {
         }
       });
   }, []);
-
 
   const handleResize = (event, { size }) => {
     setWidth(size.width);
